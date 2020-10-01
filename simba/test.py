@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Bone Age Assessment BoNet test routine.
+Bone Age Assessment SIMBA test routine.
 """
 
 # Standard lib imports
@@ -26,6 +26,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 # Local imports
 from models.simba import SIMBA
+from data.data_loader import BoneageDataset as Dataset
 from utils import AverageMeter
 from utils import metric_average
 
@@ -37,11 +38,11 @@ warnings.filterwarnings("ignore")
 parser = argparse.ArgumentParser()
 
 # Model settings
-parser.add_argument('--relative-age', default=True, action='store_true',
+parser.add_argument('--relative-age', default=False, action='store_true',
                 help='Train model with relative age')
-parser.add_argument('--chronological-age', default=True, action='store_true',
+parser.add_argument('--chronological-age', default=False, action='store_true',
                 help='Train model with chronological age multiplier')
-parser.add_argument('--gender-multiplier', default=True, action='store_true',
+parser.add_argument('--gender-multiplier', default=False, action='store_true',
                 help='Train model with gender multiplier')
 
 # Dataloading-related settings
@@ -181,12 +182,12 @@ def test(args, net, loader, sampler, criterion, p_dict, relative_age=True):
     epoch_loss = AverageMeter()
     with torch.no_grad():
         for i, batch in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
-            inputs, labels, gender, chronological_age, p_id = batch
+            inputs, bone_ages, gender, chronological_age, p_id = batch
             inputs, gender, chronological_age = Variable(inputs).cuda(), Variable(gender).cuda(), Variable(chronological_age).cuda()
-            labels = Variable(labels).cuda()
+            bone_ages = Variable(bone_ages).cuda()
             outputs = net(inputs, gender, chronological_age)
             if relative_age:
-                relative_ages = chronological_ages.squeeze(1) - bone_ages
+                relative_ages = chronological_age.squeeze(1) - bone_ages
                 loss = criterion(outputs.squeeze(), relative_ages)
             else:
                 loss = criterion(outputs.squeeze(), bone_ages)

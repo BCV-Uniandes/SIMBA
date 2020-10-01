@@ -12,6 +12,9 @@ class SIMBA(nn.Module):
         # Inception
         self.aux_logits = aux_logits
         self.transform_input = transform_input
+        self.chronological_age = chronological_age
+        self.gender_multiplier = gender_multiplier
+
         self.Conv2d_1a_3x3 = nn.ModuleList()
         self.Conv2d_2a_3x3 = nn.ModuleList()
         self.Conv2d_2b_3x3 = nn.ModuleList()
@@ -59,7 +62,7 @@ class SIMBA(nn.Module):
             fc_1_size += 32
 
         # Chronological Age
-        if chronological_age and gender_multiplier:
+        if chronological_age :
             self.chronological = Multiplier(1)
             fc_1_size += 1
 
@@ -120,7 +123,7 @@ class SIMBA(nn.Module):
         x = x.view(x.size(0), -1)
 
         y = self.gender(y)
-        if chronological_age:
+        if self.chronological_age:
             z = self.chronological(z)
             x = self.fc_1(torch.cat([x, y, z], 1))
         else:

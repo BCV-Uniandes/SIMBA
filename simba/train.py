@@ -38,11 +38,11 @@ warnings.filterwarnings("ignore")
 parser = argparse.ArgumentParser()
 
 # Model settings
-parser.add_argument('--relative-age', default=True, action='store_true',
+parser.add_argument('--relative-age', default=False, action='store_true',
                 help='Train model with relative age')
-parser.add_argument('--chronological-age', default=True, action='store_true',
+parser.add_argument('--chronological-age', default=False, action='store_true',
                 help='Train model with chronological age multiplier')
-parser.add_argument('--gender-multiplier', default=True, action='store_true',
+parser.add_argument('--gender-multiplier', default=False, action='store_true',
                 help='Train model with gender multiplier')
 
 # Dataloading-related settings
@@ -373,3 +373,6 @@ def evaluate(relative_age=True):
         print('Val loss: {:.5f}'.format(epoch_total_loss))
 
     return epoch_total_loss
+
+if __name__ == '__main__':
+    main()
