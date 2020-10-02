@@ -143,7 +143,7 @@ def blurr_kpts(image, kpts):
 class BoneageDataset(Dataset):
     """BoneAge dataset"""
     def __init__(self, img_dir, heatmap_dir, ann_file, json_file, img_transform = None,
-            crop = False,dataset='RSNA'):
+            crop = False,dataset='RSNA',inference=False):
         self.annotations = pd.concat([pd.read_csv(f) for f in ann_file])
         self.crop = crop
         self.img_dir = img_dir
@@ -152,6 +152,7 @@ class BoneageDataset(Dataset):
         self.half = dataset == 'RHPE' and not crop
         self.dataset = dataset
         self.heatmap_dir = heatmap_dir
+        self.inference = inference
 
     def __getitem__(self, idx):
         if not isinstance(idx, int):
@@ -171,11 +172,17 @@ class BoneageDataset(Dataset):
                     self.crop, self.half
                 )
                 break    
-                
-        bone_age = torch.tensor(info[2], dtype = torch.float)
+        if self.inference:        
+            bone_age = torch.tensor(0, dtype = torch.float)
+        else:
+            bone_age = torch.tensor(info[2], dtype = torch.float)
         gender = torch.tensor(info[1]*1, dtype = torch.float).unsqueeze(-1)
+
         if self.dataset == 'RHPE':
-            chronological_age = torch.tensor(info[3], dtype = torch.float).unsqueeze(-1)
+            if self.inference:
+                chronological_age = torch.tensor(info[2], dtype = torch.float).unsqueeze(-1)
+            else:
+                chronological_age = torch.tensor(info[3], dtype = torch.float).unsqueeze(-1)
         else:
             chronological_age = torch.tensor(0, dtype = torch.float).unsqueeze(-1)
         

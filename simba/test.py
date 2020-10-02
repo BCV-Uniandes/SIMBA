@@ -79,6 +79,9 @@ parser.add_argument('--seed', type=int, default=1111,
                     help='random seed')
 parser.add_argument('--gpu', type=str, default='3')
 
+parser.add_argument('--inference-only', default=False, action='store_true',
+                help='Only generate test predictions (use it when you dont have groundtruth)')
+
 
 args = parser.parse_args()
 
@@ -145,7 +148,7 @@ test_transform = transforms.Compose([transforms.Resize((500, 500)),
 test_dataset = Dataset([args.data_test], [args.heatmaps_test],
                         [args.ann_path_test], [args.rois_path_test],
                         img_transform=test_transform, crop=args.cropped,
-                        dataset=args.dataset
+                        dataset=args.dataset,inference=args.inference_only
                     )
 
 # Data samplers
@@ -170,11 +173,12 @@ def main():
     ids = carpograms['ID']
     p_dict = dict.fromkeys(ids)
     p_dict = test(args, net, test_loader, test_sampler,
-                  criterion, p_dict, relative_age=args.relative_age)
+                  criterion, p_dict, relative_age=args.relative_age, inference=args.inference_only)
     df = pd.DataFrame.from_dict(p_dict, orient="index")
+    
     df.to_csv(os.path.join(args.save_folder, 'inference', args.save_file), header=False)
 
-def test(args, net, loader, sampler, criterion, p_dict, relative_age=True):
+def test(args, net, loader, sampler, criterion, p_dict, relative_age=True, inference=False):
     net.eval()
     for child in net.children():
         if type(child) == nn.BatchNorm2d:
@@ -186,17 +190,20 @@ def test(args, net, loader, sampler, criterion, p_dict, relative_age=True):
             inputs, gender, chronological_age = Variable(inputs).cuda(), Variable(gender).cuda(), Variable(chronological_age).cuda()
             bone_ages = Variable(bone_ages).cuda()
             outputs = net(inputs, gender, chronological_age)
-            if relative_age:
-                relative_ages = chronological_age.squeeze(1) - bone_ages
-                loss = criterion(outputs.squeeze(), relative_ages)
-            else:
-                loss = criterion(outputs.squeeze(), bone_ages)
-            p_dict[p_id.item()] = outputs.item(), loss.item()
-            epoch_loss.update(loss)
-    loss = metric_average(epoch_loss.avg,'loss')
+            if not inference:
+                if relative_age:
+                    relative_ages = chronological_age.squeeze(1) - bone_ages
+                    loss = criterion(outputs.squeeze(), relative_ages)
+                else:
+                    loss = criterion(outputs.squeeze(), bone_ages)
+            
+                epoch_loss.update(loss)
+            p_dict[p_id.item()] = outputs.item()
+    if not inference:
+        loss = metric_average(epoch_loss.avg,'loss')
 
-    if args.rank == 0:
-        print('Test loss: {}'.format(loss))
+        if args.rank == 0:
+            print('Test loss: {}'.format(loss))
     return p_dict
 
 
