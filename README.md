@@ -1,5 +1,9 @@
 # **SIMBA: Specific Identity Markers for Bone Age Assessment**
 
+**¡We released a new version of the Bone Age Assessment Resources!** 
+
+**Follow this [link](http://marr.uniandes.edu.co/baar/home) to find the updated webpage with new methods, curated datasets and an evaluation server with a public leaderboard for fair comparison of Bone Age Assessment algorithms.** 
+
 This repository provides a PyTorch implementation of SIMBA, presented in the paper [SIMBA: Specific Identity Markers for Bone Age Assessment](https://link.springer.com/chapter/10.1007/978-3-030-59725-2_73). Presented at [MICCAI,2020](https://www.miccai2020.org/).  SIMBA is a novel approach for the task of BAA based on the use of identity markers. For this purpose, we build upon the [state-of-the-art model](https://github.com/BCV-Uniandes/Bonet), fusing the information present in the identity markers with the visual features created from the original hand radiograph. We then use this robust representation to estimate the patient’s relative bone age: the difference between chronological age and bone age.
 <br/>
 
@@ -39,15 +43,14 @@ Modify the routes in test_net.sh according to your local paths. Use the flags fo
 bash test_net.sh
 ```
 ## Pretrained models
-Pretrained models will be available soon. 
 
 | Gender multiplier 	| Chronological age multiplier 	| Relative bone age 	| Subset     	|  MAD 	| Pretrained model 	|
 |:-----------------:	|:----------------------------:	|:-----------------:	|------------	|:----:	|------------------	|
-|         x         	|               x              	|                   	| Validation 	| 6.50 	|         model1         	|
-|         x         	|                              	|         x         	| Validation 	| 8.72 	|         model2         	|
-|                   	|               x              	|         x         	| Validation 	| 7.33 	|        model3          	|
-|         x         	|               x              	|         x         	| Validation 	| 6.34 	|        model4          	|
-|         x         	|               x              	|         x         	| **Test**       	| **5.47** 	|          model5       	|
+|         x         	|               x              	|                   	| Validation 	| 6.50 	|         [model1](http://marr.uniandes.edu.co/SIMBA/pretrained_models/model_1.pth)          	|
+|         x         	|                              	|         x         	| Validation 	| 8.72 	|         [model2](http://marr.uniandes.edu.co/SIMBA/pretrained_models/model_2.pth)         	|
+|                   	|               x              	|         x         	| Validation 	| 7.33 	|        [model3](http://marr.uniandes.edu.co/SIMBA/pretrained_models/model_3.pth)          	|
+|         x         	|               x              	|         x         	| Validation 	| 6.34 	|        [model4](http://marr.uniandes.edu.co/SIMBA/pretrained_models/model_4.pth)          	|
+|         x         	|               x              	|         x         	| **Test**       	| **5.47** 	|          [model5](http://marr.uniandes.edu.co/SIMBA/pretrained_models/model_5.pth)       	|
 ## Citation
 ```
 @inproceedings{gonzalez2020simba,
